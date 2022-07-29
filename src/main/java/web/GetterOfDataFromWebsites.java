@@ -1,3 +1,5 @@
+package web;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -25,10 +27,9 @@ public class GetterOfDataFromWebsites {
 
         text = text.substring(text.indexOf("Headquarters"));
         return text.substring(text.indexOf("Industry") + 8, text.indexOf("Links")).trim();
-
     }
 
-    private static String getTextFromAWebPage(URLConnection connection) throws IOException {
+    protected static String getTextFromAWebPage(URLConnection connection) throws IOException {
         Scanner scanner = new Scanner(connection.getInputStream());
         StringBuilder builder = new StringBuilder();
         while (scanner.hasNextLine()) {

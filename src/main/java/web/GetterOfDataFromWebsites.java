@@ -35,6 +35,7 @@ public class GetterOfDataFromWebsites {
         while (scanner.hasNextLine()) {
             builder.append(scanner.nextLine());
         }
+        scanner.close();
         Document doc = Jsoup.parse(builder.toString());
         return doc.body().text();
     }

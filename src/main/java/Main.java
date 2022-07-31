@@ -1,4 +1,4 @@
-import web.CompanyFinder;
+import web.CompaniesFinder;
 import web.GetterOfDataFromWebsites;
 
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        Map<String, String> companies = CompanyFinder.findCompany();
+        Map<String, String> companies = CompaniesFinder.findCompanies();
 
         System.out.println("Started searching and merging fields \"Industry\"..." + "\n");
 
@@ -19,7 +19,5 @@ public class Main {
         }
 
         System.out.println("Finish");
-
-
     }
 }

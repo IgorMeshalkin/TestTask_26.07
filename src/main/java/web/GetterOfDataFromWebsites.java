@@ -10,23 +10,41 @@ import java.util.Scanner;
 
 public class GetterOfDataFromWebsites {
 
-    public static String fromYahoo(String tickerSymbol) throws IOException {
+    public static String fromYahoo(String tickerSymbol) {
         String url = "https://finance.yahoo.com/quote/" + tickerSymbol + "/profile?p=" + tickerSymbol;
 
-        URLConnection connection = new URL(url).openConnection();
-        String text = getTextFromAWebPage(connection);
+        String text;
+        try {
+            URLConnection connection = new URL(url).openConnection();
+            text = getTextFromAWebPage(connection);
+        } catch (IOException e) {
+            return null;
+        }
 
-        return text.substring(text.indexOf("Industry:") + 9, text.indexOf("Full Time Employees:")).trim();
+        if (!validationYahoo(text)) {
+            return null;
+        } else {
+            return text.substring(text.indexOf("Industry:") + 9, text.indexOf("Full Time Employees:")).trim();
+        }
     }
 
-    public static String fromIndeed(String companyName) throws IOException {
+    public static String fromIndeed(String companyName) {
         String url = "https://www.indeed.com/cmp/" + companyName + "/about";
 
-        URLConnection connection = new URL(url).openConnection();
-        String text = getTextFromAWebPage(connection);
+        String text;
+        try {
+            URLConnection connection = new URL(url).openConnection();
+            text = getTextFromAWebPage(connection);
+        } catch (IOException e) {
+            return null;
+        }
 
-        text = text.substring(text.indexOf("Headquarters"));
-        return text.substring(text.indexOf("Industry") + 8, text.indexOf("Links")).trim();
+        if (!validationIndeed(text)) {
+            return null;
+        } else {
+            text = text.substring(text.indexOf("Headquarters"));
+            return text.substring(text.indexOf("Industry") + 8, text.indexOf("Links")).trim();
+        }
     }
 
     protected static String getTextFromAWebPage(URLConnection connection) throws IOException {
@@ -38,5 +56,13 @@ public class GetterOfDataFromWebsites {
         scanner.close();
         Document doc = Jsoup.parse(builder.toString());
         return doc.body().text();
+    }
+
+    private static boolean validationYahoo(String text) {
+        return text.contains("Industry:") && text.contains("Full Time Employees:");
+    }
+
+    private static boolean validationIndeed(String text) {
+        return text.contains("Industry") && text.contains("Headquarters") && text.contains("Links");
     }
 }

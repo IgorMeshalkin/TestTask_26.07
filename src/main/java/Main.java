@@ -1,23 +1,9 @@
 import web.CompaniesFinder;
-import web.GetterOfDataFromWebsites;
-
-import java.util.Map;
 
 public class Main {
+    private final static int TARGET_NUMBER_OF_COMPANIES = 50;
 
     public static void main(String[] args) throws Exception {
-        Map<String, String> companies = CompaniesFinder.findCompanies();
-
-        System.out.println("Started searching and merging fields \"Industry\"..." + "\n");
-
-        int number = 1;
-        for (Map.Entry<String, String> entry : companies.entrySet()) {
-            System.out.println(number + "- " + entry.getKey() + ": " + "\n"
-                    + GetterOfDataFromWebsites.fromYahoo(entry.getValue()) + " "
-                    + GetterOfDataFromWebsites.fromIndeed(entry.getKey()) + "\n");
-            number++;
-        }
-
-        System.out.println("Finish");
+        CompaniesFinder.findCompanies(TARGET_NUMBER_OF_COMPANIES);
     }
 }

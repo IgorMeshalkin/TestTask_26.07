@@ -5,29 +5,23 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CompaniesFinder {
 
-    private final static int TARGET_NUMBER_OF_COMPANIES = 50;
+    public static void findCompanies(int numberOfCompanies) throws IOException {
 
-    public static Map<String, String> findCompanies() throws IOException {
-        System.out.println("Companies search started..." + "\n");
-
-        Map<String, String> companies = new HashMap<>();
-        Set<String> alreadyChecked = new HashSet<>();
-
-        int pageCounter = 0;
+        int companiesCounter = 0;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.now();
 
-        while (companies.size() < TARGET_NUMBER_OF_COMPANIES) {
+        Set<String> alreadyChecked = new HashSet<>();
+
+        while (companiesCounter < numberOfCompanies) {
             URLConnection connection = new URL("https://finance.yahoo.com/calendar/earnings?day="
                     + date.format(formatter))
                     .openConnection();
@@ -36,27 +30,26 @@ public class CompaniesFinder {
 
             for (String ticker : getAllTickersFromWebPage(text)) {
 
-                String companyName = getCompanyName(text.substring(text.indexOf(ticker)));
-
                 if (!alreadyChecked.contains(ticker)) {
-                    if (checkCompanyOnIndeed(companyName)) {
-                        companies.put(companyName, ticker);
-                        System.out.println("(" + ticker + ") " + companyName + " added to \"companies\"");
-                    }
                     alreadyChecked.add(ticker);
-                    System.out.println("Total checked records: " + (alreadyChecked.size()));
-                    System.out.println("Of them successfully: " + companies.size() + "\n");
+
+                    String companyName = getCompanyName(text.substring(text.indexOf(ticker)));
+
+                    String dataFromYahoo = GetterOfDataFromWebsites.fromYahoo(ticker);
+                    String dataFromIneed = GetterOfDataFromWebsites.fromIndeed(companyName);
+
+                    if (dataFromYahoo != null && dataFromIneed != null) {
+                        companiesCounter++;
+                        System.out.println(companiesCounter + "- " + companyName + "\n"
+                                + dataFromYahoo + " " + dataFromIneed + "\n");
+                    }
                 }
-                if (companies.size() == TARGET_NUMBER_OF_COMPANIES) {
+                if (companiesCounter == numberOfCompanies) {
                     break;
                 }
             }
             date = date.minusDays(1L);
-            pageCounter++;
-            System.out.println("Checked " + pageCounter + (pageCounter == 1 ? " web page" : " web pages"));
         }
-        System.out.println("Companies search completed" + "\n");
-        return companies;
     }
 
     private static Set<String> getAllTickersFromWebPage(String text) {
@@ -77,17 +70,5 @@ public class CompaniesFinder {
         int endIndexOfCompanyName = text.indexOf(" ", startIndexOfCompanyName + 1);
         endIndexOfCompanyName = text.indexOf(" ", endIndexOfCompanyName + 1);
         return text.substring(startIndexOfCompanyName + 1, endIndexOfCompanyName);
-    }
-
-    private static boolean checkCompanyOnIndeed(String companyName) {
-        String url = "https://www.indeed.com/cmp/" + companyName + "/about";
-        String text;
-        try {
-            URLConnection connection = new URL(url).openConnection();
-            text = GetterOfDataFromWebsites.getTextFromAWebPage(connection);
-        } catch (IOException e) {
-            return false;
-        }
-        return text.contains("Industry") && text.contains("Headquarters") && text.contains("Links");
     }
 }
